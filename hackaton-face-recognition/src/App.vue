@@ -6,18 +6,11 @@
       </h1>
       <span>
         Bem-vindo,
-        <b id="login" @click="userIsCracker = !userIsCracker">
-          {{!userIsCracker ? 'João Honesto': 'Hacker Russo'}}
+        <b id="login" @click="isRussian = !isRussian">
+          {{!isRussian ? 'João Honesto': 'Hacker Russo'}}
         </b>
       </span>
     </header>
-    <b>
-      <a
-        v-if="!userIsCracker"
-        @click="earlyOrder = !earlyOrder">
-        Simulação de compra anterior: {{earlyOrder?'Sim':'Não'}}
-      </a>
-    </b>
     <div id="cart">
       <h1>Carrinho de compras</h1>
       <table>
@@ -65,8 +58,7 @@ export default {
   name: 'app',
   data () {
     return {
-      userIsCracker: false,
-      earlyOrder: false,
+      isRussian: false,
       mouseMovementsX: [],
       mouseMovementsY: [],
       avgPositionHonestUser: {x: 0, y: 0},
@@ -93,7 +85,7 @@ export default {
     avgMovement(movements) {
       return movements.reduce((sum, movement) =>  { return sum + movement}, 0) / movements.length
     },
-    crackerDetected(){
+    detectCracker(){
       this.computeAverageCurrentUsersMovements();
       let errorMarginX = 500;
       let errorMarginY = 300;
@@ -105,10 +97,16 @@ export default {
       return isXCrackerMovements || isYCrackerMovements;
     },
     finish(){
-      if(this.earlyOrder)
-        return;
-      let x = this.crackerDetected();
-      alert(x);
+      let number = prompt("INFORME O NÚMERO DO CARTÃO");
+      if(number != 123){
+        alert('CARTÃO INCORRETO')
+      } else if(this.isRussian){
+          if(this.detectCracker()){
+            alert('TRANSAÇÃO RECUSADA, TENTE NOVAMENTE UTILIZANDO A AUTENTICAÇÃO FACIAL');
+          }
+      }else{
+        alert('TRANSAÇÃO APROVADA')
+      }
       this.resetMovements();
     },
     resetMovements(){
@@ -127,15 +125,8 @@ export default {
     }
   },
   watch:{
-    'userIsCracker'(value, valueBefore){
-      if(!value){
-        this.earlyOrder = false;
-      }else{
-        this.resetMovements();
-      }
-    },
-    'earlyOrder'(value, valueBefore){
-      if(valueBefore === true && value === false){
+    'isRussian'(value, valueBefore){
+      if(valueBefore === false && value === true){
         this.computeAverageHonestUsersMovements();
       }else{
         this.resetMovements();
