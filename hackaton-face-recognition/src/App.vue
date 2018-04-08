@@ -1,10 +1,23 @@
 <template>
   <div id="app">
-    <header>
+    <header style="display: flex; justify-content: space-around; align-items: center;">
       <h1>
         América Compras
       </h1>
+      <span>
+        Bem-vindo,
+        <b id="login" @click="userIsCracker = !userIsCracker">
+          {{!userIsCracker ? 'João Honesto': 'Hacker Russo'}}
+        </b>
+      </span>
     </header>
+    <b>
+      <a
+        v-if="!userIsCracker"
+        @click="earlyOrder = !earlyOrder">
+        Simulação de compra anterior: {{earlyOrder?'Sim':'Não'}}
+      </a>
+    </b>
     <div id="cart">
       <h1>Carrinho de compras</h1>
       <table>
@@ -41,7 +54,7 @@
           <input type="radio" name="method"> PayPal <br>
         </span>
         <span>
-          <button id="finishButton" @click="showModalVerification()">Finalizar compra</button>
+          <button id="finishButton" @click="finish()">Finalizar compra</button>
         </span>
       </div>
     </div>
@@ -52,6 +65,12 @@ export default {
   name: 'app',
   data () {
     return {
+      userIsCracker: false,
+      earlyOrder: false,
+      mouseMovementsX: [],
+      mouseMovementsY: [],
+      avgPositionHonestUser: {x: 0, y: 0},
+      avgPositionCurrentUser: {x: 0, y: 0},
       items: [
         {
           id: '1',
@@ -64,14 +83,80 @@ export default {
     }
   },
   methods: {
-    showModalVerification(){
-      alert('show modal');
+    trackUser(){
+      document.addEventListener('mousemove', this.trackMouseMove);
+    },
+    trackMouseMove(event){
+      this.mouseMovementsX.push(event.clientX);
+      this.mouseMovementsY.push(event.clientY);
+    },
+    avgMovement(movements) {
+      return movements.reduce((sum, movement) =>  { return sum + movement}, 0) / movements.length
+    },
+    crackerDetected(){
+      this.computeAverageCurrentUsersMovements();
+      let errorMarginX = 500;
+      let errorMarginY = 300;
+      let isXCrackerMovements = ((this.avgPositionCurrentUser.x + (errorMarginX/2)) 
+        - this.avgPositionHonestUser.x) > errorMarginX;
+      let isYCrackerMovements = ((this.avgPositionCurrentUser.y + (errorMarginY/2)) 
+        - this.avgPositionHonestUser.y) > errorMarginY;
+      this.resetMovements();
+      return isXCrackerMovements || isYCrackerMovements;
+    },
+    finish(){
+      if(this.earlyOrder)
+        return;
+      let x = this.crackerDetected();
+      alert(x);
+      this.resetMovements();
+    },
+    resetMovements(){
+      this.mouseMovementsX = [];
+      this.mouseMovementsY = [];
+    },
+    computeAverageHonestUsersMovements(){
+      this.avgPositionHonestUser.x = this.avgMovement(this.mouseMovementsX);
+      this.avgPositionHonestUser.y = this.avgMovement(this.mouseMovementsY);
+      this.resetMovements();
+    },
+    computeAverageCurrentUsersMovements(){
+      this.avgPositionCurrentUser.x = this.avgMovement(this.mouseMovementsX);
+      this.avgPositionCurrentUser.y = this.avgMovement(this.mouseMovementsY);
+      this.resetMovements();
     }
+  },
+  watch:{
+    'userIsCracker'(value, valueBefore){
+      if(!value){
+        this.earlyOrder = false;
+      }else{
+        this.resetMovements();
+      }
+    },
+    'earlyOrder'(value, valueBefore){
+      if(valueBefore === true && value === false){
+        this.computeAverageHonestUsersMovements();
+      }else{
+        this.resetMovements();
+      }
+    }
+  },
+  created(){
+    this.trackUser();
   }
 }
 </script>
 <style lang="scss">
 header{
+  h1 {
+    border-top: 3px solid white;
+    border-bottom: 3px solid white;
+  }
+  #login{
+    text-transform: uppercase;
+    font-size: 20px;
+  }
   background: #e60014;
   color: white;
   padding: 2px 10px;
