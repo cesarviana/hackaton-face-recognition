@@ -97,17 +97,22 @@ export default {
       return isXCrackerMovements || isYCrackerMovements;
     },
     finish(){
-      let number = prompt("INFORME O NÚMERO DO CARTÃO");
-      if(number != 123){
-        alert('CARTÃO INCORRETO')
-      } else if(this.isRussian){
-          if(this.detectCracker()){
-            alert('TRANSAÇÃO RECUSADA, TENTE NOVAMENTE UTILIZANDO A AUTENTICAÇÃO FACIAL');
-          }
-      }else{
-        alert('TRANSAÇÃO APROVADA')
-      }
-      this.resetMovements();
+      
+        let number = prompt("INFORME O NÚMERO DO CARTÃO");
+        if(number != 123){
+          alert('CARTÃO INCORRETO')
+        } else if(this.isRussian){
+            if(this.detectCracker()){
+              setTimeout(()=>{
+                alert('TRANSAÇÃO RECUSADA, TENTE NOVAMENTE UTILIZANDO A AUTENTICAÇÃO FACIAL');
+              },1000);
+            }
+        }else{
+          setTimeout(()=>{
+            alert('TRANSAÇÃO APROVADA')
+          },1000);
+        }
+        this.resetMovements();
     },
     resetMovements(){
       this.mouseMovementsX = [];
