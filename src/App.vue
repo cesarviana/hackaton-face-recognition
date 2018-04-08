@@ -68,7 +68,7 @@ export default {
   data () {
     return {
       successAudio: new Audio("https://www.soundjay.com/button/sounds/beep-01a.mp3"),
-      errorAudio: new Audio("http://soundbible.com/mp3/Computer Error Alert-SoundBible.com-783113881.mp3"),
+      errorAudio: new Audio("https://hd1.nyc3.digitaloceanspaces.com/files/Windows%20XP%20Error%20Sound%20Effect.mp3"),
       isRussian: false,
       cameraOpened: false,
       mouseMovementsX: [],
